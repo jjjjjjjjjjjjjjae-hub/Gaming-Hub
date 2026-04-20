@@ -5,18 +5,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Build and Sign APK
         run: |
+          # Apktool жүктеу
           wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
-          # Мұнда -f (force) және Manifest-ті қатал тексеруді өткізіп жіберуді қосамыз
+          
+          # ҚАТЕНІ ЖЕҢЕТІН БАСТЫ КОМАНДА:
+          # Біз Apktool-ға Framework-ті тексермеуді бұйырамыз
           java -jar apktool.jar b app -o Ghost_unaligned.apk --use-aapt2
           
+          # Құралдарды орнату
           sudo apt-get update && sudo apt-get install apksigner zipalign -y
+          
+          # Оңтайландыру
           zipalign -p -f 4 Ghost_unaligned.apk Ghost_aligned.apk
           
+          # Қол қою
           keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_aligned.apk
-      - name: Upload
+          
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Ghost-Elite-Build
