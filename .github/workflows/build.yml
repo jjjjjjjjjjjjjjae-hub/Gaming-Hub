@@ -1,4 +1,4 @@
-name: Ghost Elite Final Build
+name: Ghost Elite Manual Build
 on: [push]
 jobs:
   build:
@@ -12,19 +12,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build APK using AAPT2 Fix
+      - name: Manual APK Assemble (No Apktool)
         run: |
-          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
+          # 1. Смалиді DEX-ке айналдыру (smali.jar қолданамыз)
+          wget https://bitbucket.org/JesusFreke/smali/downloads/smali-2.5.2.jar -O smali.jar
+          java -jar smali.jar assemble app/smali -o classes.dex
+
+          # 2. Ресурстарды AAPT2 арқылы жинау (Бұл жерде Framework қатесі болмайды)
+          # Біз Android SDK құралдарын тікелей қолданамыз
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          $ANDROID_HOME/build-tools/33.0.0/aapt2 compile --dir app/res -o res.zip
+          $ANDROID_HOME/build-tools/33.0.0/aapt2 link --proto-format -o base.apk             -I $ANDROID_HOME/platforms/android-33/android.jar             --manifest app/AndroidManifest.xml             --java app/gen             res.zip
           
-          # ЕҢ МАҢЫЗДЫ ЖОЛ: Framework қатесін айналып өту
-          # Біз Apktool-ға ресурстарды тексермеуді және Framework-ті қолданбауды бұйырамыз
-          java -jar apktool.jar b app --use-aapt2 -o Ghost_unaligned.apk
-          
+          # 3. classes.dex пен assets-ті қосу
+          zip -uj base.apk classes.dex
+          cp -r app/assets .
+          zip -ur base.apk assets
+
+          # 4. Оңтайландыру және Қол қою
           sudo apt-get update && sudo apt-get install apksigner zipalign -y
-          zipalign -p -f 4 Ghost_unaligned.apk Ghost_aligned.apk
+          zipalign -p -f 4 base.apk Ghost_Elite_aligned.apk
           
           keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_aligned.apk
+          apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_Elite_aligned.apk
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
