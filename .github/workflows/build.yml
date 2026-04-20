@@ -12,12 +12,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build APK without Framework
+      - name: Install Android SDK Framework
+        run: |
+          # Apktool-ға қажетті жүйелік framework-ті қолдан жүктеп, орнату
+          mkdir -p ~/.local/share/apktool/framework
+          wget https://github.com/iBotPeaches/Apktool/raw/master/brut.apktool/src/test/resources/framework/1.apk -O ~/.local/share/apktool/framework/1.apk
+
+      - name: Build and Sign APK
         run: |
           wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
           
-          # Мұнда біз --no-res параметрін пайдаланбаймыз, бірақ aapt2-ні мәжбүрлейміз
-          # Және framework-ке тәуелділікті жою үшін жаңа әдіс қолданамыз
+          # Framework-ті ескермей, AAPT2 арқылы жинау
           java -jar apktool.jar b app --use-aapt2 -o Ghost_unaligned.apk
           
           sudo apt-get update && sudo apt-get install apksigner zipalign -y
