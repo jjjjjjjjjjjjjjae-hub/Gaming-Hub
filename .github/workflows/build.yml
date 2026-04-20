@@ -1,0 +1,19 @@
+name: Fast Build Ghost
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build APK
+        run: |
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
+          java -jar apktool.jar b GhostApp -o Ghost_Light.apk
+          sudo apt-get install apksigner -y
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Light_Signed.apk Ghost_Light.apk
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ghost-Mod-Menu
+          path: Ghost_Light_Signed.apk
