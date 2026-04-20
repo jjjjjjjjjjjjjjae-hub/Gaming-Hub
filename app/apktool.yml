@@ -1,0 +1,10 @@
+version: 2.9.3
+apkFileName: Ghost_Elite.apk
+isFrameworkApk: false
+sdkInfo:
+  minSdkVersion: '21'
+  targetSdkVersion: '33'
+versionInfo:
+  versionCode: '1'
+  versionName: '3.0'
+compressionType: false
