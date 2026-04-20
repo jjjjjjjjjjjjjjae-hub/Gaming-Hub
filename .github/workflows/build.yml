@@ -5,23 +5,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Build and Sign APK
         run: |
           wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
-          # Мұнда біз Manifest-ті мәжбүрлеп тексеруді (validation) алып тастаймыз
-          java -jar apktool.jar b app -o Ghost_Elite_unaligned.apk
+          # Мұнда -f (force) және Manifest-ті қатал тексеруді өткізіп жіберуді қосамыз
+          java -jar apktool.jar b app -o Ghost_unaligned.apk --use-aapt2
           
-          sudo apt-get update
-          sudo apt-get install apksigner zipalign -y
-          
-          zipalign -p -f 4 Ghost_Elite_unaligned.apk Ghost_Elite_aligned.apk
+          sudo apt-get update && sudo apt-get install apksigner zipalign -y
+          zipalign -p -f 4 Ghost_unaligned.apk Ghost_aligned.apk
           
           keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          
-          apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_Elite_aligned.apk
-          
-      - name: Upload APK
+          apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_aligned.apk
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Ghost-Elite-Build

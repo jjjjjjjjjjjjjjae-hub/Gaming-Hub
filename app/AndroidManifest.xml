@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.almas.ghost">
-
-    <application android:label="Ghost Kazakh">
-        <activity 
-            android:name="com.ghost.MainActivity"
-            android:exported="true">
+    <application android:label="GhostApp">
+        <activity android:name="com.ghost.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
