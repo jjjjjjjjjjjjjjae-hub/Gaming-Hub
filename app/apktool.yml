@@ -8,3 +8,4 @@ versionInfo:
   versionCode: '1'
   versionName: '3.0'
 compressionType: false
+doNotCheckResources: true
