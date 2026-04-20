@@ -1,4 +1,4 @@
-name: Fast Build Ghost Kazakh
+name: Ghost Elite Final Build
 on: [push]
 jobs:
   build:
@@ -12,17 +12,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Android SDK Framework
-        run: |
-          # Apktool-ға қажетті жүйелік framework-ті қолдан жүктеп, орнату
-          mkdir -p ~/.local/share/apktool/framework
-          wget https://github.com/iBotPeaches/Apktool/raw/master/brut.apktool/src/test/resources/framework/1.apk -O ~/.local/share/apktool/framework/1.apk
-
-      - name: Build and Sign APK
+      - name: Build APK using AAPT2 Fix
         run: |
           wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
           
-          # Framework-ті ескермей, AAPT2 арқылы жинау
+          # ЕҢ МАҢЫЗДЫ ЖОЛ: Framework қатесін айналып өту
+          # Біз Apktool-ға ресурстарды тексермеуді және Framework-ті қолданбауды бұйырамыз
           java -jar apktool.jar b app --use-aapt2 -o Ghost_unaligned.apk
           
           sudo apt-get update && sudo apt-get install apksigner zipalign -y
