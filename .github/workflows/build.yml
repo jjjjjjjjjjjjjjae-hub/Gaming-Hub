@@ -8,21 +8,17 @@ jobs:
       
       - name: Build and Sign APK
         run: |
-          # 1. Apktool жүктеп алу және APK жинау
           wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
+          # Мұнда біз Manifest-ті мәжбүрлеп тексеруді (validation) алып тастаймыз
           java -jar apktool.jar b app -o Ghost_Elite_unaligned.apk
           
-          # 2. Қажетті құралдарды орнату (apksigner және zipalign)
           sudo apt-get update
           sudo apt-get install apksigner zipalign -y
           
-          # 3. Zipalign арқылы APK-ны оңтайландыру (Міндетті қадам!)
           zipalign -p -f 4 Ghost_Elite_unaligned.apk Ghost_Elite_aligned.apk
           
-          # 4. Кілт (keystore) жасау
           keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           
-          # 5. Оңтайландырылған APK-ға қол қою
           apksigner sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android --out Ghost_Elite_Signed.apk Ghost_Elite_aligned.apk
           
       - name: Upload APK
